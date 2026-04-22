@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- 多目标框架：.NET6 / .NET9 / .NET10 -->
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net6.0;net9.0;net10.0</TargetFrameworks>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <AssemblyVersion>1.1.4.0</AssemblyVersion>
     <Copyright>Copyright © Tobias Meyer 2023</Copyright>
@@ -14,60 +15,49 @@
     <RepositoryUrl>https://github.com/Zubastic/PDFiumSharp</RepositoryUrl>
     <PackageTags>PDF PDFium Rendering C# Renderer</PackageTags>
     <NoWarn>CS1591;CS0419;CS1572;CS1573;CS1574;CS1580;$NoWarn</NoWarn>
-  </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <!-- 全局启用不安全代码 -->
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <!-- 自动生成XML文档 -->
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-  </PropertyGroup>
+  <!-- 所有框架共用的NuGet包 -->
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard2.0\PDFiumSharp.xml</DocumentationFile>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DocumentationFile>bin\Release\netstandard2.0\PDFiumSharp.xml</DocumentationFile>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-  </PropertyGroup>
-
+  <!-- T4 模板配置（只配置模板，不重复声明编译文件） -->
   <ItemGroup>
-    <None Include="PDFium.g.cs">
+
+    <!-- 仅设置生成文件依赖关系，不重复包含 -->
+    <None Update="PDFium.g.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>PDFium.tt</DependentUpon>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Types\FPDF_Typedefs.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>FPDF_Typedefs.g.cs</LastGenOutput>
     </None>
     <None Update="PDFium.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>PDFium.g.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <!-- Native DLL 复制到输出目录 -->
+  <ItemGroup>
     <None Update="pdfium_x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="pdfium_x86.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Types\FPDF_Typedefs.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FPDF_Typedefs.g.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
+  <!-- T4 开发时服务 -->
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="PDFium.g.cs">
       <DesignTime>True</DesignTime>
